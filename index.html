@@ -302,6 +302,10 @@
       color: #172033;
     }
 
+    .btn.speak {
+      background: #344256;
+    }
+
     .btn-row {
       display: flex;
       flex-wrap: wrap;
@@ -493,6 +497,12 @@
       margin-top: 8px;
       color: #172033;
       font-weight: 850;
+    }
+
+    .speech-note {
+      color: var(--muted);
+      font-size: 12px;
+      margin: 8px 0 0;
     }
 
     .calendar {
@@ -687,6 +697,10 @@
         <h2>自分専用フレーズ集</h2>
         <div class="category" id="categoryButtons"></div>
         <div id="phraseList"></div>
+        <div class="btn-row">
+          <button class="btn secondary" type="button" onclick="stopSpeech()">読み上げ停止</button>
+        </div>
+        <p class="speech-note" id="phraseSpeechStatus"></p>
       </div>
     </section>
 
@@ -700,9 +714,12 @@
           <div class="en hidden" id="cardEn"></div>
           <div class="btn-row">
             <button class="btn" type="button" onclick="showAnswer()">英語を表示</button>
+            <button class="btn speak" type="button" onclick="speakCardEnglish()">読み上げ</button>
+            <button class="btn secondary" type="button" onclick="stopSpeech()">停止</button>
             <button class="btn secondary" type="button" onclick="nextCard()">次へ</button>
             <button class="btn green" type="button" onclick="knowCard()">言えた</button>
           </div>
+          <p class="speech-note" id="cardSpeechStatus"></p>
         </div>
       </div>
     </section>
@@ -753,6 +770,9 @@
           <div class="btn-row">
             <button class="btn green" type="button" onclick="saveWriting()">保存</button>
             <button class="btn" type="button" onclick="copyWritingPrompt()">ChatGPT添削用プロンプトをコピー</button>
+            <button class="btn speak" type="button" onclick="speakWritingEnglish()">英作文を読み上げ</button>
+            <button class="btn secondary" type="button" onclick="speakUsableSentence()">使える1文を読み上げ</button>
+            <button class="btn warn" type="button" onclick="stopSpeech()">停止</button>
           </div>
           <p class="footer-note" id="writingSaved"></p>
         </div>
@@ -966,6 +986,7 @@
     let activeVideo = "今日見る動画";
     let cardPool = [];
     let cardIndex = 0;
+    let speechToken = 0;
 
     function $(id) {
       return document.getElementById(id);
@@ -1022,6 +1043,7 @@
       renderCalendar();
       loadJournal();
       loadWriting();
+      prepareSpeech();
       updateStreak();
       registerServiceWorker();
     }
@@ -1082,7 +1104,14 @@
 
     function renderPhrases() {
       $("phraseList").innerHTML = phrases[activeCat].map((phrase) => {
-        return `<div class="phrase"><span class="pill">${activeCat}</span><div class="jp">${phrase[0]}</div><div class="en">${phrase[1]}</div></div>`;
+        return `<div class="phrase">
+          <span class="pill">${activeCat}</span>
+          <div class="jp">${phrase[0]}</div>
+          <div class="en">${phrase[1]}</div>
+          <div class="btn-row">
+            <button class="btn speak" type="button" data-speak="${escapeAttr(phrase[1])}" onclick="speakFromButton(this)">読み上げ</button>
+          </div>
+        </div>`;
       }).join("");
     }
 
@@ -1101,6 +1130,11 @@
 
     function showAnswer() {
       $("cardEn").classList.remove("hidden");
+    }
+
+    function speakCardEnglish() {
+      showAnswer();
+      speakEnglish($("cardEn").textContent, "音読カード");
     }
 
     function nextCard() {
@@ -1241,6 +1275,16 @@
       $("writingSaved").textContent = isAuto ? "音読チェックを保存しました" : "英作文を保存しました";
     }
 
+    function speakWritingEnglish() {
+      saveWriting(true);
+      speakEnglish($("writingEnglish").value, "英作文");
+    }
+
+    function speakUsableSentence() {
+      saveWriting(true);
+      speakEnglish($("usableSentence").value, "使える1文");
+    }
+
     function buildWritingPrompt() {
       const data = currentWritingData();
       return `あなたは、JCI World Congress / Clark 2026 に向けた英語スピーキングコーチです。
@@ -1306,6 +1350,85 @@ ${data.usableSentence || "未入力"}
         .replaceAll(">", "&gt;")
         .replaceAll('"', "&quot;")
         .replaceAll("'", "&#039;");
+    }
+
+    function escapeAttr(value) {
+      return escapeHtml(value).replaceAll("`", "&#096;");
+    }
+
+    function prepareSpeech() {
+      if (!canSpeakEnglish()) return;
+      speechSynthesis.getVoices();
+      speechSynthesis.onvoiceschanged = () => speechSynthesis.getVoices();
+    }
+
+    function canSpeakEnglish() {
+      return "speechSynthesis" in window && "SpeechSynthesisUtterance" in window;
+    }
+
+    function speakFromButton(button) {
+      speakEnglish(button.dataset.speak || "", "フレーズ");
+    }
+
+    function speakEnglish(text, label = "英文") {
+      const sentence = String(text || "").trim();
+      if (!sentence) {
+        setSpeechStatus(`${label}がまだ入力されていません。`);
+        return;
+      }
+
+      if (!canSpeakEnglish()) {
+        setSpeechStatus("このブラウザでは読み上げに対応していません。");
+        return;
+      }
+
+      speechToken += 1;
+      const token = speechToken;
+      speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(sentence);
+      utterance.lang = "en-US";
+      utterance.rate = 0.86;
+      utterance.pitch = 1;
+      const voices = speechSynthesis.getVoices();
+      utterance.voice = voices.find((voice) => /^en[-_]/i.test(voice.lang) && /us|united states|samantha|google/i.test(voice.name))
+        || voices.find((voice) => /^en[-_]/i.test(voice.lang))
+        || null;
+
+      utterance.onstart = () => {
+        if (token === speechToken) setSpeechStatus(`${label}を読み上げています。`);
+      };
+      utterance.onend = () => {
+        if (token === speechToken) setSpeechStatus(`${label}の読み上げが終わりました。`);
+      };
+      utterance.onerror = (event) => {
+        if (token !== speechToken || event.error === "interrupted" || event.error === "canceled") return;
+        setSpeechStatus("読み上げできませんでした。端末の音量やブラウザ設定を確認してください。");
+      };
+      setSpeechStatus(`${label}を読み上げています。`);
+      speechSynthesis.speak(utterance);
+    }
+
+    function stopSpeech() {
+      if (canSpeakEnglish()) {
+        speechToken += 1;
+        speechSynthesis.cancel();
+      }
+      setSpeechStatus("読み上げを停止しました。");
+    }
+
+    function setSpeechStatus(message) {
+      const writingStatus = $("writingSaved");
+      const cardStatus = $("cardSpeechStatus");
+      const phraseStatus = $("phraseSpeechStatus");
+      if (writingStatus && document.getElementById("writing").classList.contains("show")) {
+        writingStatus.textContent = message;
+      }
+      if (cardStatus && document.getElementById("cards").classList.contains("show")) {
+        cardStatus.textContent = message;
+      }
+      if (phraseStatus && document.getElementById("phrases").classList.contains("show")) {
+        phraseStatus.textContent = message;
+      }
     }
 
     function renderCalendar() {
