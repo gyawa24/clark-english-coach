@@ -159,7 +159,7 @@
 
     nav .inner {
       display: grid;
-      grid-template-columns: repeat(7, minmax(0, 1fr));
+      grid-template-columns: repeat(8, minmax(0, 1fr));
       gap: 8px;
       max-width: 1100px;
       margin: auto;
@@ -311,6 +311,8 @@
 
     .phrase,
     .video,
+    .practice-panel,
+    .history-item,
     .backup-panel {
       min-width: 0;
       margin: 10px 0;
@@ -428,6 +430,71 @@
       white-space: pre-wrap;
     }
 
+    .topic-box {
+      border-left: 4px solid var(--accent);
+      background: var(--soft-blue);
+    }
+
+    .field-label {
+      display: block;
+      margin: 14px 0 6px;
+      color: #253247;
+      font-size: 14px;
+      font-weight: 850;
+    }
+
+    .speaking-checks {
+      display: grid;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .speak-check {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      min-height: 46px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+      padding: 10px 12px;
+      font-weight: 750;
+    }
+
+    .speak-check input {
+      flex: 0 0 auto;
+      width: 22px;
+      height: 22px;
+      accent-color: var(--mint);
+    }
+
+    .history-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .history-item {
+      margin: 0;
+    }
+
+    .history-date {
+      color: var(--accent-strong);
+      font-size: 13px;
+      font-weight: 850;
+    }
+
+    .history-text {
+      margin: 6px 0 0;
+      color: #475569;
+      font-size: 13px;
+    }
+
+    .usable-line {
+      margin-top: 8px;
+      color: #172033;
+      font-weight: 850;
+    }
+
     .calendar {
       display: grid;
       grid-template-columns: repeat(7, minmax(0, 1fr));
@@ -474,7 +541,7 @@
 
     @media (max-width: 760px) {
       :root {
-        --nav-height: 90px;
+        --nav-height: 132px;
       }
 
       body {
@@ -515,12 +582,13 @@
       }
 
       nav .inner {
-        gap: 5px;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 6px;
         padding: 0 8px;
       }
 
       .tab {
-        min-height: 50px;
+        min-height: 46px;
         border-radius: 8px;
         font-size: 11px;
         padding: 6px 3px;
@@ -662,6 +730,45 @@
       </div>
     </section>
 
+    <section id="writing">
+      <div class="grid">
+        <div class="card half">
+          <h2>英作文からスピーキングへ</h2>
+          <div class="practice-panel topic-box">
+            <span class="pill">今日のお題</span>
+            <h3 id="writingTopic"></h3>
+            <p class="muted small">日本語で考える、英語にする、添削してもらう、最後は見ずに言う。</p>
+          </div>
+
+          <label class="field-label" for="writingMemo">日本語メモ</label>
+          <textarea id="writingMemo" placeholder="今日話せるようになりたい内容を日本語でメモ"></textarea>
+
+          <label class="field-label" for="writingEnglish">英作文</label>
+          <textarea id="writingEnglish" placeholder="I want to say..."></textarea>
+
+          <label class="field-label" for="usableSentence">今日の使える1文</label>
+          <input id="usableSentence" type="text" placeholder="例: I want to make our city more attractive for young families." />
+
+          <div class="btn-row">
+            <button class="btn green" type="button" onclick="saveWriting()">保存</button>
+            <button class="btn" type="button" onclick="copyWritingPrompt()">ChatGPT添削用プロンプトをコピー</button>
+          </div>
+          <p class="footer-note" id="writingSaved"></p>
+        </div>
+
+        <div class="card half">
+          <h2>音読チェック</h2>
+          <p class="muted">書いた英文を、会議で口から出る英語に変える。</p>
+          <div class="speaking-checks" id="speakingChecks"></div>
+        </div>
+
+        <div class="card">
+          <h2>過去7日分の英作文履歴</h2>
+          <div class="history-list" id="writingHistory"></div>
+        </div>
+      </div>
+    </section>
+
     <section id="videos">
       <div class="card">
         <h2>見るべき動画ライブラリ</h2>
@@ -693,7 +800,7 @@
       <div class="grid">
         <div class="card half">
           <h2>バックアップ</h2>
-          <p class="muted">チェックリスト、英作文メモ、音読カードの進捗をJSONで保存できます。</p>
+          <p class="muted">チェックリスト、英作文、音読チェック、音読カードの進捗をJSONで保存できます。</p>
           <div class="backup-actions">
             <div class="backup-panel">
               <h3>エクスポート</h3>
@@ -729,6 +836,7 @@
       ["phrases", "フレーズ"],
       ["cards", "音読"],
       ["conversation", "会話"],
+      ["writing", "英作文"],
       ["videos", "動画"],
       ["progressPage", "進捗"],
       ["backup", "保存"]
@@ -741,6 +849,24 @@
       "英語動画を10分見る",
       "自己紹介をスマホで録音",
       "今日の英作文を3文書く"
+    ];
+
+    const writingTopics = [
+      "Clarkで初対面のJCIメンバーに自己紹介する",
+      "千歳市を30秒で紹介する",
+      "自分が取り組んでいる地域課題を説明する",
+      "相手の国やLOMの活動について質問する",
+      "分科会の内容に対して1つ質問する",
+      "会議後も連絡を取りたいと伝える",
+      "子育て・教育・若者参加について自分の意見を話す"
+    ];
+
+    const speakingSteps = [
+      "見ながら読んだ",
+      "少し速く読んだ",
+      "感情を入れて読んだ",
+      "日本語を見て英語で言った",
+      "何も見ずに言えた"
     ];
 
     const phrases = {
@@ -841,11 +967,18 @@
       const keys = [];
       for (let i = 0; i < localStorage.length; i += 1) {
         const key = localStorage.key(i);
-        if (/^done-\d{4}-\d{2}-\d{2}$/.test(key) || /^journal-\d{4}-\d{2}-\d{2}$/.test(key) || key === "known") {
+        if (isLearningStorageKey(key)) {
           keys.push(key);
         }
       }
       return keys.sort();
+    }
+
+    function isLearningStorageKey(key) {
+      return /^done-\d{4}-\d{2}-\d{2}$/.test(key)
+        || /^journal-\d{4}-\d{2}-\d{2}$/.test(key)
+        || /^writing-\d{4}-\d{2}-\d{2}$/.test(key)
+        || key === "known";
     }
 
     function init() {
@@ -869,6 +1002,7 @@
       renderVideos();
       renderCalendar();
       loadJournal();
+      loadWriting();
       updateStreak();
       registerServiceWorker();
     }
@@ -996,6 +1130,165 @@
       $("journal").value = localStorage.getItem(`journal-${keyToday()}`) || "";
     }
 
+    function writingKey(dateKey = keyToday()) {
+      return `writing-${dateKey}`;
+    }
+
+    function getWritingTopic(dateKey = keyToday()) {
+      const index = [...dateKey].reduce((sum, char) => sum + char.charCodeAt(0), 0) % writingTopics.length;
+      return writingTopics[index];
+    }
+
+    function getWritingData(dateKey = keyToday()) {
+      const raw = localStorage.getItem(writingKey(dateKey));
+      if (!raw) {
+        return {
+          topic: getWritingTopic(dateKey),
+          memo: "",
+          english: "",
+          usableSentence: "",
+          checks: []
+        };
+      }
+
+      try {
+        const parsed = JSON.parse(raw);
+        return {
+          topic: parsed.topic || getWritingTopic(dateKey),
+          memo: parsed.memo || "",
+          english: parsed.english || "",
+          usableSentence: parsed.usableSentence || "",
+          checks: Array.isArray(parsed.checks) ? parsed.checks : []
+        };
+      } catch (error) {
+        return {
+          topic: getWritingTopic(dateKey),
+          memo: "",
+          english: raw,
+          usableSentence: "",
+          checks: []
+        };
+      }
+    }
+
+    function setWritingData(data, dateKey = keyToday()) {
+      const payload = {
+        topic: data.topic || getWritingTopic(dateKey),
+        memo: data.memo || "",
+        english: data.english || "",
+        usableSentence: data.usableSentence || "",
+        checks: Array.isArray(data.checks) ? data.checks : [],
+        updatedAt: new Date().toISOString()
+      };
+      localStorage.setItem(writingKey(dateKey), JSON.stringify(payload));
+      return payload;
+    }
+
+    function currentWritingData() {
+      return {
+        topic: $("writingTopic").textContent,
+        memo: $("writingMemo").value,
+        english: $("writingEnglish").value,
+        usableSentence: $("usableSentence").value,
+        checks: Array.from(document.querySelectorAll("[data-speaking-step]"))
+          .filter((input) => input.checked)
+          .map((input) => Number(input.dataset.speakingStep))
+      };
+    }
+
+    function loadWriting() {
+      const data = getWritingData();
+      $("writingTopic").textContent = data.topic;
+      $("writingMemo").value = data.memo;
+      $("writingEnglish").value = data.english;
+      $("usableSentence").value = data.usableSentence;
+      renderSpeakingChecks(data.checks);
+      renderWritingHistory();
+    }
+
+    function renderSpeakingChecks(checks = []) {
+      $("speakingChecks").innerHTML = speakingSteps.map((step, index) => {
+        const checked = checks.includes(index);
+        return `<label class="speak-check">
+          <input type="checkbox" data-speaking-step="${index}" ${checked ? "checked" : ""} onchange="saveWriting(true)">
+          <span>${index + 1}. ${step}</span>
+        </label>`;
+      }).join("");
+    }
+
+    function saveWriting(isAuto = false) {
+      setWritingData(currentWritingData());
+      renderWritingHistory();
+      $("writingSaved").textContent = isAuto ? "音読チェックを保存しました" : "英作文を保存しました";
+    }
+
+    function buildWritingPrompt() {
+      const data = currentWritingData();
+      return `あなたは、JCI World Congress / Clark 2026 に向けた英語スピーキングコーチです。
+
+目的:
+この英作文を、国際会議の懇親会・分科会・名刺交換で実際に口から出せる英語に直してください。
+
+今日のお題:
+${data.topic || "未入力"}
+
+日本語メモ:
+${data.memo || "未入力"}
+
+自分で書いた英作文:
+${data.english || "未入力"}
+
+今日の使える1文:
+${data.usableSentence || "未入力"}
+
+お願い:
+1. 意味を変えずに、自然で短く話しやすい英語に添削してください。
+2. 難しい単語より、会議で実際に言いやすい表現を優先してください。
+3. 30秒で話せる完成版を作ってください。
+4. 重要フレーズを3つ抜き出してください。
+5. 最後に、音読しやすいように区切りを入れた練習版も作ってください。`;
+    }
+
+    async function copyWritingPrompt() {
+      saveWriting(true);
+      const prompt = buildWritingPrompt();
+      try {
+        await navigator.clipboard.writeText(prompt);
+        $("writingSaved").textContent = "ChatGPT添削用プロンプトをコピーしました";
+      } catch (error) {
+        $("writingSaved").textContent = "コピーできませんでした。ブラウザの権限を確認してください。";
+      }
+    }
+
+    function renderWritingHistory() {
+      const now = new Date();
+      const items = [];
+      for (let i = 0; i < 7; i += 1) {
+        const date = new Date(now);
+        date.setDate(now.getDate() - i);
+        const dateKey = formatLocalDate(date);
+        const data = getWritingData(dateKey);
+        const hasData = Boolean(data.memo || data.english || data.usableSentence || data.checks.length);
+        const label = date.toLocaleDateString("ja-JP", { month: "numeric", day: "numeric", weekday: "short" });
+        items.push(`<div class="history-item">
+          <div class="history-date">${label} / ${data.topic}</div>
+          <p class="history-text">${hasData ? escapeHtml(data.english || data.memo || "音読チェックのみ保存") : "未保存"}</p>
+          ${data.usableSentence ? `<div class="usable-line">使える1文: ${escapeHtml(data.usableSentence)}</div>` : ""}
+          <p class="history-text">音読チェック: ${data.checks.length} / ${speakingSteps.length}</p>
+        </div>`);
+      }
+      $("writingHistory").innerHTML = items.join("");
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
     function renderCalendar() {
       let html = "";
       const now = new Date();
@@ -1031,6 +1324,7 @@
       renderTodos();
       renderCalendar();
       loadJournal();
+      loadWriting();
       updateStreak();
     }
 
@@ -1089,8 +1383,7 @@
 
           let restored = 0;
           Object.entries(storage).forEach(([key, value]) => {
-            const isLearningKey = /^done-\d{4}-\d{2}-\d{2}$/.test(key) || /^journal-\d{4}-\d{2}-\d{2}$/.test(key) || key === "known";
-            if (isLearningKey && (typeof value === "string" || typeof value === "number")) {
+            if (isLearningStorageKey(key) && (typeof value === "string" || typeof value === "number")) {
               localStorage.setItem(key, String(value));
               restored += 1;
             }
