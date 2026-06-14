@@ -1,0 +1,21 @@
+{
+  "name": "Clark English Coach",
+  "short_name": "Clark Coach",
+  "description": "JCI World Congress / Clark 2026 に向けた英語トレーニング",
+  "lang": "ja",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f7fafc",
+  "theme_color": "#174ea6",
+  "categories": ["education", "productivity"],
+  "icons": [
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='96' fill='%23174ea6'/%3E%3Cpath d='M138 314c42 55 116 72 178 40 36-19 62-50 76-86-26 25-61 41-99 41-75 0-136-59-140-133-26 35-35 93-15 138z' fill='%23f8fafc'/%3E%3Cpath d='M132 136h248v54H132zM132 214h174v46H132z' fill='%23f6c453'/%3E%3C/svg%3E",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
