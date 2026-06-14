@@ -646,6 +646,7 @@
         <span class="badge">JCI / ASPAC</span>
         <span class="badge">千歳市紹介</span>
         <span class="badge">地域政策</span>
+        <span class="badge">デザイン思考</span>
         <span class="badge">毎日30分</span>
       </div>
     </div>
@@ -676,7 +677,7 @@
           <div class="score" id="streak">0</div>
           <p class="muted">連続学習日数</p>
           <h3>今日の合格ライン</h3>
-          <p>自己紹介を3回、聞き返しフレーズ5個、動画10分。これで十分。</p>
+          <p>自己紹介を3回、聞き返しフレーズ5個、動画またはデザイン思考資料を10分。これで十分。</p>
         </div>
       </div>
     </section>
@@ -771,8 +772,8 @@
 
     <section id="videos">
       <div class="card">
-        <h2>見るべき動画ライブラリ</h2>
-        <p class="muted">最初は英語字幕ありでOK。聞き取れた単語を5個メモする。</p>
+        <h2>動画・資料ライブラリ</h2>
+        <p class="muted">最初は英語字幕ありでOK。聞き取れた単語や使えそうな問いを5個メモする。</p>
         <div class="category" id="videoButtons"></div>
         <div id="videoList"></div>
       </div>
@@ -788,8 +789,8 @@
         <div class="card half">
           <h2>11月までの目安</h2>
           <p><b>6〜7月：</b>耳慣れ・自己紹介</p>
-          <p><b>8月：</b>千歳市、JCI、市議会の説明</p>
-          <p><b>9月：</b>会話練習を増やす</p>
+          <p><b>8月：</b>千歳市、JCI、市議会、デザイン思考の説明</p>
+          <p><b>9月：</b>相手の課題を聞く会話練習を増やす</p>
           <p><b>10月：</b>本番シミュレーション</p>
           <p><b>11月：</b>10人に自己紹介、3人と5分以上会話、1回質問。</p>
         </div>
@@ -857,6 +858,8 @@
       "自分が取り組んでいる地域課題を説明する",
       "相手の国やLOMの活動について質問する",
       "分科会の内容に対して1つ質問する",
+      "相手の地域課題をデザイン思考の質問で深掘りする",
+      "小さな試作品や実験から学ぶ姿勢を英語で説明する",
       "会議後も連絡を取りたいと伝える",
       "子育て・教育・若者参加について自分の意見を話す"
     ];
@@ -906,6 +909,14 @@
         ["今回の会議で一番楽しみにしていることは何ですか？", "What are you most looking forward to at this conference?"],
         ["あなたのまちの一番大きな課題は何ですか？", "What is the biggest challenge in your city?"],
         ["帰国後も連絡を取り合えたら嬉しいです。", "I’d love to stay in touch after the conference."]
+      ],
+      "デザイン思考": [
+        ["まず当事者の話をよく聞くことが大切だと思います。", "I think it is important to listen carefully to the people affected by the issue first."],
+        ["解決策を急ぐ前に、本当の課題を理解したいです。", "Before jumping to solutions, I want to understand the real problem."],
+        ["小さく試して、反応を見ながら改善したいです。", "I want to test small ideas and improve them based on feedback."],
+        ["この課題を利用者の視点から見ると、何が見えてきますか？", "If we look at this issue from the user’s point of view, what do we notice?"],
+        ["完璧な計画より、早く学べる試作品が大事だと思います。", "I think a quick prototype that helps us learn is more important than a perfect plan."],
+        ["あなたの地域では、住民の声をどのように政策に反映していますか？", "How do you reflect residents’ voices in policy in your community?"]
       ]
     };
 
@@ -914,7 +925,8 @@
       "名刺交換": "Please role-play a business card exchange at an international conference. Help me introduce myself as a city council member from Chitose, Hokkaido, and a Junior Chamber member. Ask about my work, city, and interests. Keep the conversation realistic and friendly.",
       "分科会で質問": "Please help me practice asking a question after a conference session. The topic is community development, youth leadership, or digital government. First give a short speaker summary, then ask me to respond with one question in English. Correct my question and suggest a more natural version.",
       "千歳市紹介": "Please interview me about Chitose City in English. Ask me about New Chitose Airport, semiconductor investment, housing, transportation, child care, and what kind of city I want to create. Use simple follow-up questions.",
-      "JC活動紹介": "Please role-play a conversation with a JCI member. Ask me what my Junior Chamber does, what community projects we are working on, how we involve families and young people, and what I want to learn from other countries."
+      "JC活動紹介": "Please role-play a conversation with a JCI member. Ask me what my Junior Chamber does, what community projects we are working on, how we involve families and young people, and what I want to learn from other countries.",
+      "デザイン思考": "Please role-play a conversation with a JCI member about design thinking and community problem solving. Ask me about empathy, listening to residents, defining the real problem, prototyping small ideas, testing them, and learning from feedback. Please use simple English and help me ask good follow-up questions."
     };
 
     const videos = {
@@ -939,6 +951,13 @@
         ["Why We Should Know Our Local Government", "地方政府・市民参加の語彙に慣れる。", "https://www.youtube.com/watch?v=d6muMzwVEl4"],
         ["Democracy Works — We Just Need Better Leaders | TED", "政治・リーダーシップ系の会議英語に慣れる。", "https://www.youtube.com/watch?v=TiyBdAvnLCw"],
         ["TED Talks Leadership Playlist", "聞き流し用。週1本選んで使う。", "https://www.youtube.com/playlist?list=PLZoCxV45n5rNywe-zZOHMJHkfOrpH7-Dz"]
+      ],
+      "デザイン思考": [
+        ["IDEO Design Thinking Resources", "人間中心の課題解決、創造性、実践ツールをまとめて確認する入口。", "https://designthinking.ideo.com/resources"],
+        ["IDEO Design Thinking Overview", "desirability / viability / feasibility など、基本概念の英語に慣れる。", "https://designthinking.ideo.com/"],
+        ["Stanford d.school Tools", "empathy、ideation、prototypeなどの実践ツールを英語で読む。", "https://dschool.stanford.edu/innovate/tools"],
+        ["Stanford d.school Design Thinking Bootleg", "デザイン思考の基本プロセスを短く把握する資料。", "https://dschool.stanford.edu/tools/design-thinking-bootleg"],
+        ["IDEO.org Design Kit", "human-centered designを地域課題に応用する視点を学ぶ。", "https://www.designkit.org/"]
       ]
     };
 

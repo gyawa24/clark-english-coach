@@ -1,6 +1,6 @@
 # Clark English Coach
 
-JCI World Congress / Clark 2026 に向けた、単体HTML/CSS/JSの軽量PWAです。ReactやNext.jsは使っていません。
+JCI World Congress / Clark 2026 に向けた、単体HTML/CSS/JSの軽量PWAです。英語トレーニングに加えて、地域課題を聞き取り、試し、改善するためのデザイン思考フレーズと資料も扱います。ReactやNext.jsは使っていません。
 
 ## 構成
 
